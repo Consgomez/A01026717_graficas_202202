@@ -1,1 +1,2 @@
-# A01026717_graficas_202202
+# Constanza Gómez Sánchez
+## A01026717
