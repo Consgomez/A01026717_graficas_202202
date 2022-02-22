@@ -52,11 +52,11 @@ function main()
 
     let ctx = canvas.getContext("2d");
 
-    var w = 400;
-    var h = 400;
+    const w = 400;
+    const h = 400;
 
-    var slider = document.getElementById("myRange");
-    var output = document.getElementById("number");
+    const slider = document.getElementById("myRange");
+    const output = document.getElementById("number");
     output.innerHTML = slider.value;
 
     slider.oninput = (event) => {
