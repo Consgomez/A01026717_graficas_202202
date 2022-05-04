@@ -11,7 +11,7 @@ let mars = null, earth = null, mercurio = null, venus = null, jupiter = null, sa
 
 let marsGroup = null, earthGroup = null, mercuryGroup = null, venusGroup = null, jupiterGroup = null, saturnGroup = null, uranoGroup = null, neptunoGroup = null, plutoGroup = null;
 
-let orbTierra = null, orbJupiter = null;
+let lunasTierra = null, lunasMarte = null, lunasJupiter = null, lunasSaturn = null, lunasUrano = null, lunasNeptuno = null, lunasPluton = null;
 
 let sun = null;
 
@@ -52,6 +52,7 @@ let plutoTextureUrl = "../images/sistema/plutomap1k.jpg";
 let plutoBumpUrl = "../images/sistema/plutobump1k.jpg";
 
 let asteroidTextureUrl = "../images/sistema/asteroid.jpg";
+let orbitTextureUrl = "../images/sistema/orbit.jpeg";
 
 function main()
 {
@@ -116,11 +117,10 @@ const objetoKosmos = {
 
         return mesh;
     },
-    createGroup(posX, planeta)
+    createGroup(posX)
     {
         const grupo = new THREE.Object3D;
         grupo.position.x = posX;
-        grupo.add(planeta);
 
         return grupo;
     },
@@ -138,7 +138,7 @@ const objetoKosmos = {
 
         return mesh
     },
-    createOrbit(posX)
+    createGroupLunas(posX)
     {
         let group = new THREE.Object3D;
         group.position.x = posX;
@@ -149,12 +149,23 @@ const objetoKosmos = {
         let texture = new THREE.TextureLoader().load(moonTextureUrl);
         let bumps = new THREE.TextureLoader().load(moonBumpUrl);
         let material = new THREE.MeshPhongMaterial({map: texture, bumpMap: bumps, bumpScale: 0.5})
-        let geometry = new THREE.SphereGeometry(0.7, 20, 20);
+        let geometry = new THREE.SphereGeometry(0.6, 10, 10);
         let moon = new THREE.Mesh(geometry, material);
         moon.position.set(posX, posY, 0);
         moon.castShadow = false;
         moon.receiveShadow = false;
         return moon;
+    },
+    createOrbit(r)
+    {
+        let texture = new THREE.TextureLoader().load(orbitTextureUrl);
+        let material = new THREE.MeshPhongMaterial({map: texture});
+        let geometry = new THREE.TorusGeometry(r, 0.1, 30, 100);
+        let orbita = new THREE.Mesh(geometry, material);
+        orbita.position.x = 0;
+        orbita.rotation.x = Math.PI/2;
+
+        return orbita;
     }
 }
 
@@ -184,7 +195,7 @@ function createScene(canvas)
     //Sol
     let texture = new THREE.TextureLoader().load(sunTextureUrl);
     let material = new THREE.MeshPhongMaterial({map: texture, lightMap: texture});
-    let geometry = new THREE.SphereGeometry(23, 20, 20);
+    let geometry = new THREE.SphereGeometry(23, 64, 32);
     
     sun = new THREE.Mesh(geometry, material);
     sun.position.x = 0;
@@ -196,59 +207,128 @@ function createScene(canvas)
     //MERCURIO
     mercurio = planeta.create(mercuryTextureUrl, mercuryBumpUrl, 1.38, 20, 20, 30);
     mercuryGroup = planeta.createGroup(0, mercurio);
+    let planetOrbita = planeta.createOrbit(30);
+    mercuryGroup.add(mercurio);
+    galaxy.add(planetOrbita);
     galaxy.add(mercuryGroup);
 
     //VENUS
     venus = planeta.create(venusTextureUrl, venusBumpUrl, 1.95, 20, 20, 50);
     venusGroup = planeta.createGroup(0, venus);
+    planetOrbita = planeta.createOrbit(50);
+    venusGroup.add(venus);
+    galaxy.add(planetOrbita);
     galaxy.add(venusGroup);
 
     //TIERRA
     earth = planeta.create(earthTextureUrl, earthBumpUrl, 2, 20, 20, 70);
     earthGroup = planeta.createGroup(0, earth);
-    orbTierra = planeta.createOrbit(70);
-    orbTierra.add(planeta.createMoon(4.5, 2));
-    earthGroup.add(orbTierra);
+    lunasTierra = planeta.createGroupLunas(70);
+    lunasTierra.add(planeta.createMoon(4.5, 2));
+    planetOrbita = planeta.createOrbit(70);
+    earthGroup.add(earth);
+    earthGroup.add(lunasTierra);
+    galaxy.add(planetOrbita);
     galaxy.add(earthGroup);
 
-    //Marte
+    //MARTE
     mars = planeta.create(marsTextureUrl, marsBumpUrl, 1.80, 20, 20, 90);
     marsGroup = planeta.createGroup(0, mars);
+    lunasMarte = planeta.createGroupLunas(90);
+    for(let i=0; i < 2; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 4-(i*2));
+        lunasMarte.add(luna);
+    }
+    planetOrbita = planeta.createOrbit(90);
+    marsGroup.add(mars);
+    marsGroup.add(lunasMarte);
+    galaxy.add(planetOrbita);
     galaxy.add(marsGroup);
 
     //JUPITER
     jupiter = planeta.create(jupiterTextureUrl, jupiterBumpUrl, 11, 20, 20, 150);
     jupiterGroup = planeta.createGroup(0, jupiter);
-    orbJupiter = planeta.createOrbit(150);
-    for(let i=0; i < 4; ++i)
+    lunasJupiter = planeta.createGroupLunas(150);
+    for(let i=0; i < 4; i++)
     {
-        orbJupiter.add(planeta.createMoon(4.5, i));
+        lunasJupiter.add(planeta.createMoon(5+(i*2), 14-(i*2)));
     }
-    jupiterGroup.add(orbJupiter);
+    planetOrbita = planeta.createOrbit(150);
+    jupiterGroup.add(jupiter);
+    jupiterGroup.add(lunasJupiter);
+    galaxy.add(planetOrbita);
     galaxy.add(jupiterGroup);
 
     //SATURNO
     saturno = planeta.create(saturnTextureUrl, jupiterBumpUrl, 9, 20, 20, 180);
     saturnGroup = planeta.createGroup(0, saturno);
     let saturnRing = planeta.createRing(saturnRingTextureUrl, 11, 17, 20, 200, 10, 180, 0);
-    galaxy.add(saturnGroup);
+    lunasSaturn = planeta.createGroupLunas(180);
+    for(let i=0; i < 5; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 17-(i*2));
+        lunasSaturn.add(luna);
+    }
+    for(let i=0; i < 4; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 13-(i*2));
+        lunasSaturn.add(luna);
+    }
+    planetOrbita = planeta.createOrbit(180);
+    saturnGroup.add(saturno);
     saturnGroup.add(saturnRing);
+    saturnGroup.add(lunasSaturn);
+    galaxy.add(planetOrbita);
+    galaxy.add(saturnGroup);
 
     //URANO
     urano = planeta.create(uranusTextureUrl, uranusBumpUrl, 5, 20, 20, 210);
     uranoGroup = planeta.createGroup(0, urano);
     let uranusRing = planeta.createRing(uranusRingTextureUrl, 6, 7, 19, 180, 13, 210, 0);
-    galaxy.add(uranoGroup);
+    lunasUrano = planeta.createGroupLunas(210);
+    for(let i=0; i < 3; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 10-(i*2));
+        lunasUrano.add(luna);
+    }
+    for(let i=0; i < 3; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 8-(i*2));
+        lunasUrano.add(luna);
+    }
+    planetOrbita = planeta.createOrbit(210);
+    uranoGroup.add(urano);
     uranoGroup.add(uranusRing);
+    uranoGroup.add(lunasUrano);
+    galaxy.add(planetOrbita);
+    galaxy.add(uranoGroup);
 
     //NEPTUNO
     neptuno = planeta.create(neptuneTextureUrl, uranusBumpUrl, 5, 20, 20, 230);
     neptunoGroup = planeta.createGroup(0, neptuno);
-    galaxy.add(neptuno);
+    lunasNeptuno = planeta.createGroupLunas(230);
+    for(let i=0; i < 3; i++)
+    {
+        let luna = planeta.createMoon(3+(i*2), 8-(i*2));
+        lunasNeptuno.add(luna);
+    }
+    planetOrbita = planeta.createOrbit(230);
+    neptunoGroup.add(neptuno);
+    neptunoGroup.add(lunasNeptuno);
+    galaxy.add(planetOrbita);
+    galaxy.add(neptunoGroup);
 
     //PLUTON
     pluton = planeta.create(plutoTextureUrl, plutoBumpUrl, 1.30, 20, 20, 250);
     plutoGroup = planeta.createGroup(0, pluton);
+    lunasPluton = planeta.createGroupLunas(250);
+    let luna = planeta.createMoon(3, 3);
+    planetOrbita = planeta.createOrbit(250);
+    lunasPluton.add(luna);
+    plutoGroup.add(pluton);
+    plutoGroup.add(lunasPluton);
+    galaxy.add(planetOrbita);
     galaxy.add(plutoGroup);
 }
 
