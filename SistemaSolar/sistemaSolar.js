@@ -81,25 +81,45 @@ function animate()
         }
     }
 
-    mercuryGroup.rotation.y += angle/2;
+    sun.rotation.y += angle;
 
-    venusGroup.rotation.y += angle/3;
+    mercurio.rotation.y += angle;
+    mercuryGroup.rotation.y += angle/3;
 
-    earthGroup.rotation.y += angle/2.9;
+    venus.rotation.y += angle;
+    venusGroup.rotation.y += angle/4;
 
-    marsGroup.rotation.y += angle/4;
+    earth.rotation.y += angle;
+    lunasTierra.rotation.y += angle/2.5;
+    earthGroup.rotation.y += angle/3.9;
 
-    asteroidGroup.rotation.y += angle/5.5;
+    mars.rotation.y += angle;
+    lunasMarte.rotation.y += angle/2.5;
+    marsGroup.rotation.y += angle/5;
 
-    jupiterGroup.rotation.y += angle/5.3;
+    asteroidGroup.rotation.y += angle/6;
 
-    saturnGroup.rotation.y += angle/6.8;
+    jupiter.rotation.y += angle;
+    lunasJupiter.rotation.y += angle/2.5;
+    jupiterGroup.rotation.y += angle/6.3;
 
-    uranoGroup.rotation.y += angle/8.6;
+    saturno.rotation.y += angle;
+    // saturnRing.rotation.z += angle;
+    lunasSaturn.rotation.y += angle/2.5;
+    saturnGroup.rotation.y += angle/7.8;
 
-    neptunoGroup.rotation.y += angle/8.8;
+    urano.rotation.y += angle;
+    //uranusRing.rotation.z += angle;
+    lunasUrano.rotation.y += angle/2.5;
+    uranoGroup.rotation.y += angle/9.6;
 
-    plutoGroup.rotation.y += angle/7.7;
+    neptuno.rotation.y += angle;
+    lunasNeptuno.rotation.y += angle/2.5;
+    neptunoGroup.rotation.y += angle/9.8;
+
+    pluton.rotation.y += angle;
+    lunasPluton.rotation.y += angle;
+    plutoGroup.rotation.y += angle/8.7;
 }
 
 function update() 
@@ -115,30 +135,33 @@ function update()
 function addLight(scene)
 {
     // Add a directional light to show off the object
-    directionalLight = new THREE.DirectionalLight( 0xaaaaaa, 1);
+    // directionalLight = new THREE.DirectionalLight( 0xaaaaaa, 1);
 
-    // Create and add all the lights
-    directionalLight.position.set(.5, 1, -3);
-    directionalLight.target.position.set(0,0,0);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
+    // // Create and add all the lights
+    // directionalLight.position.set(.5, 1, -3);
+    // directionalLight.target.position.set(0,0,0);
+    // directionalLight.castShadow = true;
+    // scene.add(directionalLight);
 
-    spotLight = new THREE.SpotLight (0xaaaaaa);
-    spotLight.position.set(2, 8, 15);
-    spotLight.target.position.set(-2, 0, -2);
-    scene.add(spotLight);
+    // spotLight = new THREE.SpotLight (0xaaaaaa);
+    // spotLight.position.set(2, 8, 15);
+    // spotLight.target.position.set(-2, 0, -2);
+    // scene.add(spotLight);
 
-    spotLight.castShadow = true;
+    // spotLight.castShadow = true;
 
-    spotLight.shadow.camera.near = 1;
-    spotLight.shadow. camera.far = 200;
-    spotLight.shadow.camera.fov = 45;
+    // spotLight.shadow.camera.near = 1;
+    // spotLight.shadow. camera.far = 200;
+    // spotLight.shadow.camera.fov = 45;
     
-    spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
-    spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
+    // spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
+    // spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
 
-    ambientLight = new THREE.AmbientLight ( 0xffffff, 0.8);
-    scene.add(ambientLight);
+    // ambientLight = new THREE.AmbientLight ( 0xffffff, 0.8);
+    // scene.add(ambientLight);
+    const pointLight = new THREE.PointLight( 0xffccaa, 2 , 1000 ); //Luz que sale a todos lados (el sol)
+    pointLight.position.set( 0, 0, 0 );
+    scene.add( pointLight );
 }
 
 function onError ( err ){ console.error( err ); };
@@ -207,10 +230,10 @@ const objetoKosmos = {
 
         return mesh;
     },
-    createGroup(posX)
+    createGroup()
     {
         const grupo = new THREE.Object3D;
-        grupo.position.x = posX;
+        grupo.position.x = 0;
 
         return grupo;
     },
@@ -297,7 +320,7 @@ function createScene(canvas)
 
     //MERCURIO
     mercurio = planeta.create(mercuryTextureUrl, mercuryBumpUrl, 1.38, 20, 20, 30);
-    mercuryGroup = planeta.createGroup(0, mercurio);
+    mercuryGroup = planeta.createGroup();
     let planetOrbita = planeta.createOrbit(30);
     mercuryGroup.add(mercurio);
     galaxy.add(planetOrbita);
@@ -305,7 +328,7 @@ function createScene(canvas)
 
     //VENUS
     venus = planeta.create(venusTextureUrl, venusBumpUrl, 1.95, 20, 20, 50);
-    venusGroup = planeta.createGroup(0, venus);
+    venusGroup = planeta.createGroup();
     planetOrbita = planeta.createOrbit(50);
     venusGroup.add(venus);
     galaxy.add(planetOrbita);
@@ -313,7 +336,7 @@ function createScene(canvas)
 
     //TIERRA
     earth = planeta.create(earthTextureUrl, earthBumpUrl, 2, 20, 20, 70);
-    earthGroup = planeta.createGroup(0, earth);
+    earthGroup = planeta.createGroup();
     lunasTierra = planeta.createGroupLunas(70);
     lunasTierra.add(planeta.createMoon(4.5, 2));
     planetOrbita = planeta.createOrbit(70);
@@ -324,7 +347,7 @@ function createScene(canvas)
 
     //MARTE
     mars = planeta.create(marsTextureUrl, marsBumpUrl, 1.80, 20, 20, 90);
-    marsGroup = planeta.createGroup(0, mars);
+    marsGroup = planeta.createGroup();
     lunasMarte = planeta.createGroupLunas(90);
     for(let i=0; i < 2; i++)
     {
@@ -339,7 +362,7 @@ function createScene(canvas)
 
     //JUPITER
     jupiter = planeta.create(jupiterTextureUrl, jupiterBumpUrl, 11, 20, 20, 150);
-    jupiterGroup = planeta.createGroup(0, jupiter);
+    jupiterGroup = planeta.createGroup();
     lunasJupiter = planeta.createGroupLunas(150);
     for(let i=0; i < 4; i++)
     {
@@ -353,7 +376,7 @@ function createScene(canvas)
 
     //SATURNO
     saturno = planeta.create(saturnTextureUrl, jupiterBumpUrl, 9, 20, 20, 180);
-    saturnGroup = planeta.createGroup(0, saturno);
+    saturnGroup = planeta.createGroup();
     let saturnRing = planeta.createRing(saturnRingTextureUrl, 11, 17, 20, 200, 10, 180, 0);
     lunasSaturn = planeta.createGroupLunas(180);
     for(let i=0; i < 5; i++)
@@ -375,7 +398,7 @@ function createScene(canvas)
 
     //URANO
     urano = planeta.create(uranusTextureUrl, uranusBumpUrl, 5, 20, 20, 210);
-    uranoGroup = planeta.createGroup(0, urano);
+    uranoGroup = planeta.createGroup();
     let uranusRing = planeta.createRing(uranusRingTextureUrl, 6, 7, 19, 180, 13, 210, 0);
     lunasUrano = planeta.createGroupLunas(210);
     for(let i=0; i < 3; i++)
@@ -397,7 +420,7 @@ function createScene(canvas)
 
     //NEPTUNO
     neptuno = planeta.create(neptuneTextureUrl, uranusBumpUrl, 5, 20, 20, 230);
-    neptunoGroup = planeta.createGroup(0, neptuno);
+    neptunoGroup = planeta.createGroup();
     lunasNeptuno = planeta.createGroupLunas(230);
     for(let i=0; i < 3; i++)
     {
@@ -412,7 +435,7 @@ function createScene(canvas)
 
     //PLUTON
     pluton = planeta.create(plutoTextureUrl, plutoBumpUrl, 1.30, 20, 20, 250);
-    plutoGroup = planeta.createGroup(0, pluton);
+    plutoGroup = planeta.createGroup();
     lunasPluton = planeta.createGroupLunas(250);
     let luna = planeta.createMoon(3, 3);
     planetOrbita = planeta.createOrbit(250);
