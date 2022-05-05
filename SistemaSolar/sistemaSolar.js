@@ -5,6 +5,9 @@ import { OrbitControls } from '../libs/three.js/controls/OrbitControls.js';
 import { OBJLoader } from '../libs/three.js/loaders/OBJLoader.js';
 import { MTLLoader } from '../libs/three.js/loaders/MTLLoader.js';
 
+let duration = 10000; // ms
+let currentTime = Date.now();
+
 let objMtlModelUrl = {obj:'models/10464_Asteroid_v1_Iterations-2.obj', mtl:'models/10464_Asteroid_v1_Iterations-2.mtl'};
 
 let renderer = null, scene = null, camera = null, orbitControls = null, galaxy = null, objectList = [];
@@ -51,7 +54,6 @@ let neptuneTextureUrl = "../images/sistema/2k_neptune.jpeg";
 let plutoTextureUrl = "../images/sistema/plutomap1k.jpg";
 let plutoBumpUrl = "../images/sistema/plutobump1k.jpg";
 
-let asteroidTextureUrl = "../images/sistema/asteroid.jpg";
 let orbitTextureUrl = "../images/sistema/orbit.jpeg";
 
 function main()
@@ -63,6 +65,43 @@ function main()
     update();
 }
 
+function animate()
+{
+    let now = Date.now();
+    let deltat = now - currentTime;
+    currentTime = now;
+    let fract = deltat / duration;
+    let angle = Math.PI * 2 * fract;
+
+    for(const object of objectList)
+    {
+        if(object)
+        {
+            object.rotation.y += angle / 30;
+        }
+    }
+
+    mercuryGroup.rotation.y += angle/2;
+
+    venusGroup.rotation.y += angle/3;
+
+    earthGroup.rotation.y += angle/2.9;
+
+    marsGroup.rotation.y += angle/4;
+
+    asteroidGroup.rotation.y += angle/5.5;
+
+    jupiterGroup.rotation.y += angle/5.3;
+
+    saturnGroup.rotation.y += angle/6.8;
+
+    uranoGroup.rotation.y += angle/8.6;
+
+    neptunoGroup.rotation.y += angle/8.8;
+
+    plutoGroup.rotation.y += angle/7.7;
+}
+
 function update() 
 {
     requestAnimationFrame(function() { update(); });
@@ -70,8 +109,7 @@ function update()
     // Render the scene
     renderer.render( scene, camera );
 
-    // Update the camera controller
-    orbitControls.update();
+    animate();
 }
 
 function addLight(scene)
