@@ -5,15 +5,15 @@ import { OrbitControls } from '../libs/three.js/controls/OrbitControls.js';
 import { OBJLoader } from '../libs/three.js/loaders/OBJLoader.js';
 import { MTLLoader } from '../libs/three.js/loaders/MTLLoader.js';
 
-let renderer = null, scene = null, camera = null, orbitControls = null, galaxy = null;
+let objMtlModelUrl = {obj:'models/10464_Asteroid_v1_Iterations-2.obj', mtl:'models/10464_Asteroid_v1_Iterations-2.mtl'};
 
-let mars = null, earth = null, mercurio = null, venus = null, jupiter = null, saturno = null, urano = null, neptuno = null, pluton = null;
+let renderer = null, scene = null, camera = null, orbitControls = null, galaxy = null, objectList = [];
 
-let marsGroup = null, earthGroup = null, mercuryGroup = null, venusGroup = null, jupiterGroup = null, saturnGroup = null, uranoGroup = null, neptunoGroup = null, plutoGroup = null;
+let mars = null, earth = null, mercurio = null, venus = null, jupiter = null, saturno = null, urano = null, neptuno = null, pluton = null, sun = null;
+
+let marsGroup = null, earthGroup = null, mercuryGroup = null, venusGroup = null, jupiterGroup = null, saturnGroup = null, uranoGroup = null, neptunoGroup = null, plutoGroup = null, asteroidGroup = null;
 
 let lunasTierra = null, lunasMarte = null, lunasJupiter = null, lunasSaturn = null, lunasUrano = null, lunasNeptuno = null, lunasPluton = null;
-
-let sun = null;
 
 let directionalLight = null, spotLight = null, ambientLight = null;
 
@@ -103,6 +103,58 @@ function addLight(scene)
     scene.add(ambientLight);
 }
 
+function onError ( err ){ console.error( err ); };
+
+function onProgress( xhr ) 
+{
+    if ( xhr.lengthComputable ) {
+
+        const percentComplete = xhr.loaded / xhr.total *100;
+        console.log( xhr.target.responseURL, Math.round( percentComplete, 2 ) + '% downloaded' );
+    }
+}
+
+async function loadObjMtl(objModelUrl, objectList)
+{
+    try
+    {
+        const mtlLoader = new MTLLoader();
+        const materials = await mtlLoader.loadAsync(objModelUrl.mtl, onProgress, onError);
+        materials.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(materials);
+        const asteroid = await objLoader.loadAsync(objModelUrl.obj, onProgress, onError);
+
+        asteroidGroup = new THREE.Object3D;
+        asteroidGroup.position.set(0, 0, 0);
+
+        for(let i = 0; i < 100; i++)
+        {
+            let newAsteroid = asteroid.clone();
+
+            let randomOrb = Math.random() * (130 - 100) + 100;
+            let radians = (Math.random() * (360 - 0) + 0) * Math.PI / 180;
+
+            newAsteroid.position.x = Math.cos(radians) * randomOrb;
+            newAsteroid.position.z = Math.sin(radians) * randomOrb;
+
+            let random = Math.random() * (3 - (-3)) + (-3);
+            newAsteroid.position.y = random;
+            random = Math.random() * (0.007 - 0.003) + 0.003;
+            newAsteroid.scale.set(random, random, random);
+
+            asteroidGroup.add(newAsteroid);
+        }
+        
+        objectList.push(asteroid);
+        scene.add(asteroidGroup);
+    }
+    catch (err)
+    {
+        onError(err);
+    }
+}
+
 const objetoKosmos = {
     create(textureUrl, bumpUrl, r, w, h, pX)
     {
@@ -171,6 +223,7 @@ const objetoKosmos = {
 
 function createScene(canvas) 
 {
+    loadObjMtl(objMtlModelUrl, objectList);
     // Create the Three.js renderer and attach it to our canvas
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
     // Set the viewport size
@@ -179,7 +232,7 @@ function createScene(canvas)
     scene = new THREE.Scene();
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000);
-    camera.position.set(0, 0, 100);
+    camera.position.set(230, 170, 370);
     scene.add(camera);
     //Orbit controller
     orbitControls = new OrbitControls(camera, renderer.domElement);
