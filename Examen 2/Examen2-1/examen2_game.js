@@ -6,8 +6,9 @@ let raycaster = null, mouse = new THREE.Vector2(), intersected, clicked;
 
 let directionalLight = null, spotLight = null, ambientLight = null;
 
-let cubes = [];
+let cubes = null;
 let score = 0;
+let duration = 500; // ms
 
 const mapUrl = "./images/checker_large.gif";
 let currentTime = Date.now();
@@ -17,6 +18,17 @@ function animate()
     const now = Date.now();
     const deltat = now - currentTime;
     currentTime = now;
+    const fract = deltat / duration;
+    const angle = Math.PI * 2 * fract;
+
+    cubes.children.forEach(cubo => {
+        cubo.position.z += angle;
+
+        if(cubo.position.z > 125)
+        {
+            score -= 1;
+        }
+    })
 }
 
 function update() 
@@ -69,6 +81,10 @@ function createScene(canvas)
     document.addEventListener('pointerdown', onDocumentPointerDown);
 
     scene.add( root );
+
+    cubes = new THREE.Object3D();
+    root.add( cubes );
+    setInterval(addBoxes, 500);
 }
 
 function onDocumentPointerMove( event ) 
@@ -109,12 +125,30 @@ function onDocumentPointerDown(event)
 
     raycaster.setFromCamera( mouse, camera );
 
-    let intersects = raycaster.intersectObjects( scene.children );
+    let intersects = raycaster.intersectObjects( cubes.children );
 
     if ( intersects.length > 0 ) 
     {
         clicked = intersects[ 0 ].object;
+        clicked.parent.remove(clicked);
+        score += 1;
+
+        const w_score = document.getElementById('scoreText');
+        const text = 'Score: ' + score;
+        console.log(text);
+        w_score.innerHTML = text;
     } 
+}
+
+function addBoxes()
+{
+    const geometry = new THREE.BoxGeometry( 5, 5, 5 );
+    
+    const object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+
+    object.position.set(Math.random() * (40 - (-40)) - 40, Math.random() * 40 , -80);
+            
+    cubes.add(object);
 }
 
 function main()
